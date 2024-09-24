@@ -24,22 +24,23 @@ E_E = 0.081819221456
 # helper functions
 ## calculated denominator
 def calc_denom(ecc, lat_rad):
-return math.sqrt(1.0-(ecc**2)*(math.sin(lat_rad)**2))
+    return math.sqrt(1.0-(ecc**2)*(math.sin(lat_rad)**2))
 # initialize script arguments
 r_x_km = float('nan') # ECEF x-component in km
 r_y_km = float('nan') # ECEF y-component in km
 r_z_km = float('nan') # ECEF z-component in km
 # parse script arguments
 if len(sys.argv)==4:
-r_x_km = float(sys.argv[1])
-r_y_km = float(sys.argv[2])
-r_z_km = float(sys.argv[3])
+    try:
+        r_x_km = float(sys.argv[1])
+        r_y_km = float(sys.argv[2])
+        r_z_km = float(sys.argv[3])
+    except ValueError:
+        print('r_x, r_y, and r_z must be numbers')
+        sys.exit()
 else:
-print(\
-'Usage: '\
-'python3 ecef_to_llh.py r_x_km r_y_km r_z_km'\
-)
-exit()
+    print('Usage: python3 ecef_to_llh.py r_x_km r_y_km r_z_km')
+    sys.exit()
 # write script below this line
 # calculate longitude
 lon_rad = math.atan2(r_y_km,r_x_km)
@@ -52,11 +53,11 @@ prev_lat_rad = float('nan')
 c_E = float('nan')
 count = 0
 while (math.isnan(prev_lat_rad) or abs(lat_rad-prev_lat_rad)>10e-7) and count<5:
-denom = calc_denom(E_E,lat_rad)
-c_E = R_E_KM/denom
-prev_lat_rad = lat_rad
-lat_rad = math.atan((r_z_km+c_E*(E_E**2)*math.sin(lat_rad))/r_lon_km)
-count = count+1
+    denom = calc_denom(E_E,lat_rad)
+    c_E = R_E_KM/denom
+    prev_lat_rad = lat_rad
+    lat_rad = math.atan((r_z_km+c_E*(E_E**2)*math.sin(lat_rad))/r_lon_km)
+    count = count+1
 # calculate hae
 hae_km = r_lon_km/math.cos(lat_rad)-c_E
 # print latitude (deg), longitude (deg), and HAE (km)
